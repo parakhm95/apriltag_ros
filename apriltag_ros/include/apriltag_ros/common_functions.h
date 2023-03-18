@@ -44,74 +44,67 @@
 #ifndef APRILTAG_ROS_COMMON_FUNCTIONS_H
 #define APRILTAG_ROS_COMMON_FUNCTIONS_H
 
-#include <string>
-#include <sstream>
-#include <vector>
 #include <map>
+#include <sstream>
+#include <string>
+#include <vector>
 
-#include <ros/ros.h>
-#include <ros/console.h>
 #include <XmlRpcException.h>
 #include <cv_bridge/cv_bridge.h>
 #include <eigen3/Eigen/Dense>
 #include <eigen3/Eigen/Geometry>
-#include <opencv2/opencv.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/core/core.hpp>
 #include <image_transport/image_transport.h>
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/opencv.hpp>
+#include <ros/console.h>
+#include <ros/ros.h>
 #include <sensor_msgs/image_encodings.h>
 #include <tf/transform_broadcaster.h>
 
 #include <apriltag.h>
 
+#include "apriltag_ros/AprilTagCorners.h"
 #include "apriltag_ros/AprilTagDetection.h"
 #include "apriltag_ros/AprilTagDetectionArray.h"
 
-namespace apriltag_ros
-{
+namespace apriltag_ros {
 
-template<typename T>
-T getAprilTagOption(ros::NodeHandle& pnh,
-                    const std::string& param_name, const T & default_val)
-{
+template <typename T>
+T getAprilTagOption(ros::NodeHandle &pnh, const std::string &param_name,
+                    const T &default_val) {
   T param_val;
   pnh.param<T>(param_name, param_val, default_val);
   return param_val;
 }
 
 // Stores the properties of a tag member of a bundle
-struct TagBundleMember
-{
-  int id; // Payload ID
-  double size; // [m] Side length
+struct TagBundleMember {
+  int id;           // Payload ID
+  double size;      // [m] Side length
   cv::Matx44d T_oi; // Rigid transform from tag i frame to bundle origin frame
 };
 
-class StandaloneTagDescription
-{
- public:
-  StandaloneTagDescription() {};
-  StandaloneTagDescription(int id, double size,
-                           std::string &frame_name) :
-      id_(id),
-      size_(size),
-      frame_name_(frame_name) {}
+class StandaloneTagDescription {
+public:
+  StandaloneTagDescription(){};
+  StandaloneTagDescription(int id, double size, std::string &frame_name)
+      : id_(id), size_(size), frame_name_(frame_name) {}
 
   double size() { return size_; }
   int id() { return id_; }
-  std::string& frame_name() { return frame_name_; }
+  std::string &frame_name() { return frame_name_; }
 
- private:
+private:
   // Tag description
   int id_;
   double size_;
   std::string frame_name_;
 };
 
-class TagBundleDescription
-{
- public:
-  std::map<int, int > id2idx_; // (id2idx_[<tag ID>]=<index in tags_>) mapping
+class TagBundleDescription {
+public:
+  std::map<int, int> id2idx_; // (id2idx_[<tag ID>]=<index in tags_>) mapping
 
   TagBundleDescription(const std::string& name) :
       name_(name) {}
@@ -122,12 +115,12 @@ class TagBundleDescription
     member.size = size;
     member.T_oi = T_oi;
     tags_.push_back(member);
-    id2idx_[id] = tags_.size()-1;
+    id2idx_[id] = tags_.size() - 1;
   }
 
   const std::string& name() const { return name_; }
   // Get IDs of bundle member tags
-  std::vector<int> bundleIds () {
+  std::vector<int> bundleIds() {
     std::vector<int> ids;
     for (unsigned int i = 0; i < tags_.size(); i++) {
       ids.push_back(tags_[i].id);
@@ -135,28 +128,27 @@ class TagBundleDescription
     return ids;
   }
   // Get sizes of bundle member tags
-  std::vector<double> bundleSizes () {
+  std::vector<double> bundleSizes() {
     std::vector<double> sizes;
     for (unsigned int i = 0; i < tags_.size(); i++) {
       sizes.push_back(tags_[i].size);
     }
     return sizes;
   }
-  int memberID (int tagID) { return tags_[id2idx_[tagID]].id; }
-  double memberSize (int tagID) { return tags_[id2idx_[tagID]].size; }
-  cv::Matx44d memberT_oi (int tagID) { return tags_[id2idx_[tagID]].T_oi; }
+  int memberID(int tagID) { return tags_[id2idx_[tagID]].id; }
+  double memberSize(int tagID) { return tags_[id2idx_[tagID]].size; }
+  cv::Matx44d memberT_oi(int tagID) { return tags_[id2idx_[tagID]].T_oi; }
 
- private:
+private:
   // Bundle description
   std::string name_;
-  std::vector<TagBundleMember > tags_;
+  std::vector<TagBundleMember> tags_;
 };
 
-class TagDetector
-{
- private:
+class TagDetector {
+private:
   // Detections sorting
-  static int idComparison(const void* first, const void* second);
+  static int idComparison(const void *first, const void *second);
 
   // Remove detections of tags with the same ID
   void removeDuplicates();
@@ -168,9 +160,10 @@ class TagDetector
   double blur_;
   int refine_edges_;
   int debug_;
-  int max_hamming_distance_ = 2;  // Tunable, but really, 2 is a good choice. Values of >=3
-                                  // consume prohibitively large amounts of memory, and otherwise
-                                  // you want the largest value possible.
+  int max_hamming_distance_ =
+      2; // Tunable, but really, 2 is a good choice. Values of >=3
+         // consume prohibitively large amounts of memory, and otherwise
+         // you want the largest value possible.
 
   // AprilTag 2 objects
   apriltag_family_t *tf_;
@@ -179,14 +172,13 @@ class TagDetector
 
   // Other members
   std::map<int, StandaloneTagDescription> standalone_tag_descriptions_;
-  std::vector<TagBundleDescription > tag_bundle_descriptions_;
+  std::vector<TagBundleDescription> tag_bundle_descriptions_;
   bool remove_duplicates_;
   bool run_quietly_;
   bool publish_tf_;
   tf::TransformBroadcaster tf_pub_;
 
- public:
-
+public:
   TagDetector(ros::NodeHandle pnh);
   ~TagDetector();
 
@@ -210,9 +202,9 @@ class TagDetector
       const std_msgs::Header& header);
 
   // Detect tags in an image
-  AprilTagDetectionArray detectTags(
-      const cv_bridge::CvImagePtr& image,
-      const sensor_msgs::CameraInfoConstPtr& camera_info);
+  AprilTagDetectionArray
+  detectTags(const cv_bridge::CvImagePtr &image,
+             const sensor_msgs::CameraInfoConstPtr &camera_info);
 
   // Get the pose of the tag in the camera frame
   // Returns homogeneous transformation matrix [R,t;[0 0 0 1]] which
@@ -227,12 +219,14 @@ class TagDetector
       double fx, double fy, double cx, double cy) const;
   
   void addImagePoints(apriltag_detection_t *detection,
-                      std::vector<cv::Point2d >& imagePoints) const;
+                      std::vector<cv::Point2d> &imagePoints) const;
   void addObjectPoints(double s, cv::Matx44d T_oi,
-                       std::vector<cv::Point3d >& objectPoints) const;
+                       std::vector<cv::Point3d> &objectPoints) const;
 
   // Draw the detected tags' outlines and payload values on the image
   void drawDetections(cv_bridge::CvImagePtr image);
+
+  void getCorners(AprilTagCorners &msg);
 
   bool get_publish_tf() const { return publish_tf_; }
 };

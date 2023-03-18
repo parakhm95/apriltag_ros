@@ -35,6 +35,8 @@ IF(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   SET_PROPERTY(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Coverage" "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 ENDIF()
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_compile_options("-O3" "-funsafe-loop-optimizations" "-fsee" "-funroll-loops" "-fno-math-errno" "-funsafe-math-optimizations" "-ffinite-math-only" "-fno-signed-zeros")
 
 # Note: These options have been turned off to allow for binary releases - 
@@ -52,11 +54,13 @@ add_message_files(
   FILES
   AprilTagDetection.msg
   AprilTagDetectionArray.msg
+  AprilTagCorners.msg
 )
 
 add_service_files(
   FILES
   AnalyzeSingleImage.srv
+  SetId.srv
 )
 
 generate_messages(

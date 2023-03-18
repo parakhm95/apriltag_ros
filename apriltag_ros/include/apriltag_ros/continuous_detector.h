@@ -44,6 +44,8 @@
 #define APRILTAG_ROS_CONTINUOUS_DETECTOR_H
 
 #include "apriltag_ros/common_functions.h"
+#include <apriltag_ros/SetId.h>
+#include <std_srvs/SetBool.h>
 
 #include <memory>
 #include <mutex>
@@ -52,19 +54,21 @@
 #include <ros/service_server.h>
 #include <std_srvs/Empty.h>
 
-namespace apriltag_ros
-{
+namespace apriltag_ros {
 
-class ContinuousDetector: public nodelet::Nodelet
-{
- public:
+class ContinuousDetector : public nodelet::Nodelet {
+public:
   ContinuousDetector() = default;
   ~ContinuousDetector() = default;
 
   void onInit();
 
-  void imageCallback(const sensor_msgs::ImageConstPtr& image_rect,
-                     const sensor_msgs::CameraInfoConstPtr& camera_info);
+  void imageCallback(const sensor_msgs::ImageConstPtr &image_rect,
+                     const sensor_msgs::CameraInfoConstPtr &camera_info);
+  bool callbackSetCornerId(apriltag_ros::SetId::Request &req,
+                           apriltag_ros::SetId::Response &res);
+  bool callbackSetCornerPublishing(std_srvs::SetBool::Request &req,
+                                   std_srvs::SetBool::Response &res);
 
   void refreshTagParameters();
 
