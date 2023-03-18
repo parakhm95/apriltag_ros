@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(apriltag_ros)
 
+set(CMAKE_CXX_STANDARD 17)
+
 find_package(catkin REQUIRED COMPONENTS
   cmake_modules
   cv_bridge
@@ -33,8 +35,6 @@ IF(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   SET_PROPERTY(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Coverage" "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 ENDIF()
 
-
-set(CMAKE_CXX_STANDARD 11)
 add_compile_options("-O3" "-funsafe-loop-optimizations" "-fsee" "-funroll-loops" "-fno-math-errno" "-funsafe-math-optimizations" "-ffinite-math-only" "-fno-signed-zeros")
 
 # Note: These options have been turned off to allow for binary releases - 
@@ -66,8 +66,14 @@ generate_messages(
   std_msgs
 )
 
+# Extract the include directories and libraries from apriltag::apriltag as catkin_package() does not support modern cmake.
+get_target_property(apriltag_INCLUDE_DIRS apriltag::apriltag INTERFACE_INCLUDE_DIRECTORIES)
+get_target_property(apriltag_LIBRARIES apriltag::apriltag INTERFACE_LINK_LIBRARIES)
+
 catkin_package(
-  INCLUDE_DIRS include
+  INCLUDE_DIRS
+    include
+    ${EIGEN3_INCLUDE_DIRS}
   CATKIN_DEPENDS
     cv_bridge
     geometry_msgs
@@ -80,6 +86,7 @@ catkin_package(
     std_msgs
     tf
   DEPENDS
+    apriltag
     OpenCV
   LIBRARIES
     ${PROJECT_NAME}_common
