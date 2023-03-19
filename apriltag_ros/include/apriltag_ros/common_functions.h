@@ -183,7 +183,6 @@ public:
   ~TagDetector();
 
   // Store standalone and bundle tag descriptions
-<<<<<<< Updated upstream
   std::map<int, StandaloneTagDescription> parseStandaloneTags(
       XmlRpc::XmlRpcValue& standalone_tag_descriptions);
   std::vector<TagBundleDescription > parseTagBundles(
@@ -201,27 +200,6 @@ public:
   geometry_msgs::PoseWithCovarianceStamped makeTagPose(
       const Eigen::Isometry3d& transform,
       const std_msgs::Header& header);
-=======
-  std::map<int, StandaloneTagDescription>
-  parseStandaloneTags(XmlRpc::XmlRpcValue &standalone_tag_descriptions);
-  std::vector<TagBundleDescription>
-  parseTagBundles(XmlRpc::XmlRpcValue &tag_bundles);
-  double xmlRpcGetDouble(XmlRpc::XmlRpcValue &xmlValue,
-                         std::string field) const;
-  double xmlRpcGetDoubleWithDefault(XmlRpc::XmlRpcValue &xmlValue,
-                                    std::string field,
-                                    double defaultValue) const;
-
-  bool
-  findStandaloneTagDescription(int id,
-                               StandaloneTagDescription *&descriptionContainer,
-                               bool printWarning = true);
-
-  geometry_msgs::PoseWithCovarianceStamped
-  makeTagPose(const Eigen::Matrix4d &transform,
-              const Eigen::Quaternion<double> rot_quaternion,
-              const std_msgs::Header &header);
->>>>>>> Stashed changes
 
   // Detect tags in an image
   AprilTagDetectionArray
@@ -235,19 +213,11 @@ public:
   // rotation from the tag frame to the camera frame and t is the
   // vector from the camera frame origin to the tag frame origin,
   // expressed in the camera frame.
-<<<<<<< Updated upstream
   Eigen::Isometry3d getRelativeTransform(
       const std::vector<cv::Point3d >& objectPoints,
       const std::vector<cv::Point2d >& imagePoints,
       double fx, double fy, double cx, double cy) const;
   
-=======
-  Eigen::Matrix4d getRelativeTransform(std::vector<cv::Point3d> objectPoints,
-                                       std::vector<cv::Point2d> imagePoints,
-                                       double fx, double fy, double cx,
-                                       double cy) const;
-
->>>>>>> Stashed changes
   void addImagePoints(apriltag_detection_t *detection,
                       std::vector<cv::Point2d> &imagePoints) const;
   void addObjectPoints(double s, cv::Matx44d T_oi,
