@@ -85,6 +85,11 @@ public:
 
   ros::ServiceServer refresh_params_service_;
   bool refreshParamsCallback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res);
+  ros::Publisher tag_corners_publisher_;
+  ros::ServiceServer srv_set_corner_tag_id_;
+  ros::ServiceServer srv_set_corner_publishing_;
+  AprilTagCorners msg_corners_;
+  bool corner_publishing_;
 };
 
 } // namespace apriltag_ros
